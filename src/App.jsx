@@ -1,4 +1,52 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from './supabaseClient'
+
+function App() {
+  const [apps, setApps] = useState([])
+
+  // ➕ Insert test data
+  const addTestData = async () => {
+    const { error } = await supabase.from('applications').insert([
+      { company: 'Google', role: 'Intern', status: 'Applied', notes: 'Test' }
+    ])
+
+    if (error) console.log(error)
+    else alert('Data inserted!')
+  }
+
+  // 📥 Fetch data
+  const fetchData = async () => {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+
+    if (error) console.log(error)
+    else setApps(data)
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  return (
+    <div>
+      <h2>Supabase Test</h2>
+
+      <button onClick={addTestData}>Add Test Data</button>
+      <button onClick={fetchData}>Refresh</button>
+
+      <ul>
+        {apps.map((app) => (
+          <li key={app.id}>
+            {app.company} - {app.role}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+export default Appimport { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const STATUS_OPTIONS = ['Applied', 'Interview', 'Rejected']

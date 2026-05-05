@@ -1,16 +1,71 @@
-# React + Vite
+# Student Job Application Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple React application built with Vite for students to track job applications, interview progress, and notes.
 
-Currently, two official plugins are available:
+## Purpose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project is designed to help students manage their job application workflow by storing:
 
-## React Compiler
+- company name
+- applied role
+- application status (`Applied`, `Interview`, `Rejected`,'accepted')
+- recruiter / follow-up notes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Recent updates added a fully interactive tracker UI with local persistence, status filtering, and editable notes for each application.
 
-## Expanding the ESLint configuration
+## Technology stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React 19
+- Vite 4+ for development and build tooling
+- ESLint for code quality
+- Supabase for database storage and persistence
+
+## Features
+
+- Add new job applications with company, role, status, and notes
+- Filter applications by status or view all
+- Edit notes for each saved application
+- Change application status after submission
+- Remove applications
+- Persist data in Supabase database for cross-device access
+
+## Getting started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+## Supabase Configuration
+
+This app uses Supabase for database storage. The connection is set up in `src/supabaseClient.js` using the provided Supabase URL and anon key. Data is stored in a Supabase database for persistence across sessions and devices.
+
+## Project structure
+
+- `src/App.jsx` — main tracker application logic
+- `src/App.css` — tracker styling
+- `src/main.jsx` — application entry point
+- `package.json` — dependencies and scripts
+
+## Notes
+
+This project uses client-side storage only, so all data is saved in the browser and is not shared between devices.
