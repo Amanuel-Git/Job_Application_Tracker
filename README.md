@@ -29,32 +29,6 @@ Recent updates added a fully interactive tracker UI with local persistence, stat
 - Remove applications
 - Persist data in Supabase database for cross-device access
 
-## Getting started
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Build for production:
-
-```bash
-npm run build
-```
-
-Preview the production build locally:
-
-```bash
-npm run preview
-```
-
 ## Supabase Configuration
 
 This app uses Supabase for database storage. The connection is set up in `src/supabaseClient.js` using the provided Supabase URL and anon key. Data is stored in a Supabase database for persistence across sessions and devices.
@@ -66,6 +40,3 @@ This app uses Supabase for database storage. The connection is set up in `src/su
 - `src/main.jsx` — application entry point
 - `package.json` — dependencies and scripts
 
-## Notes
-
-This project uses client-side storage only, so all data is saved in the browser and is not shared between devices.
