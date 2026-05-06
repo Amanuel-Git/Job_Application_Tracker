@@ -1,56 +1,8 @@
-import { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient'
-
-function App() {
-  const [apps, setApps] = useState([])
-
-  // ➕ Insert test data
-  const addTestData = async () => {
-    const { error } = await supabase.from('applications').insert([
-      { company: 'Google', role: 'Intern', status: 'Applied', notes: 'Test' }
-    ])
-
-    if (error) console.log(error)
-    else alert('Data inserted!')
-  }
-
-  // 📥 Fetch data
-  const fetchData = async () => {
-    const { data, error } = await supabase
-      .from('applications')
-      .select('*')
-
-    if (error) console.log(error)
-    else setApps(data)
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  return (
-    <div>
-      <h2>Supabase Test</h2>
-
-      <button onClick={addTestData}>Add Test Data</button>
-      <button onClick={fetchData}>Refresh</button>
-
-      <ul>
-        {apps.map((app) => (
-          <li key={app.id}>
-            {app.company} - {app.role}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-export default Appimport { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from './SupabaseClient'
 import './App.css'
 
 const STATUS_OPTIONS = ['Applied', 'Interview', 'Rejected']
-const STORAGE_KEY = 'job-tracker-applications'
 
 function App() {
   const [applications, setApplications] = useState([])
@@ -63,19 +15,21 @@ function App() {
   })
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try {
-        setApplications(JSON.parse(saved))
-      } catch {
-        setApplications([])
-      }
-    }
+    fetchApplications()
   }, [])
 
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(applications))
-  }, [applications])
+  const fetchApplications = async () => {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching applications:', error)
+    } else {
+      setApplications(data || [])
+    }
+  }
 
   const filteredApplications = useMemo(() => {
     if (filter === 'All') return applications
@@ -87,39 +41,72 @@ function App() {
     setForm((current) => ({ ...current, [name]: value }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    console.log('handleSubmit called', form)
     if (!form.company.trim() || !form.role.trim()) {
+      console.log('Form validation failed')
       return
     }
 
-    const nextApplication = {
-      id: Date.now(),
-      company: form.company.trim(),
-      role: form.role.trim(),
-      status: form.status,
-      notes: form.notes.trim(),
-      createdAt: new Date().toISOString(),
+    console.log('Inserting application...')
+    const { data, error } = await supabase
+      .from('applications')
+      .insert([
+        {
+          company: form.company.trim(),
+          role: form.role.trim(),
+          status: form.status,
+          notes: form.notes.trim(),
+        }
+      ])
+
+    if (error) {
+      console.error('Error adding application:', error)
+    } else {
+      console.log('Application added successfully')
+      fetchApplications()
+      setForm({ company: '', role: '', status: STATUS_OPTIONS[0], notes: '' })
     }
-
-    setApplications((current) => [nextApplication, ...current])
-    setForm({ company: '', role: '', status: STATUS_OPTIONS[0], notes: '' })
   }
 
-  const updateStatus = (id, status) => {
-    setApplications((current) =>
-      current.map((app) => (app.id === id ? { ...app, status } : app)),
-    )
+  const updateStatus = async (id, status) => {
+    const { error } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating status:', error)
+    } else {
+      fetchApplications()
+    }
   }
 
-  const updateNotes = (id, notes) => {
-    setApplications((current) =>
-      current.map((app) => (app.id === id ? { ...app, notes } : app)),
-    )
+  const updateNotes = async (id, notes) => {
+    const { error } = await supabase
+      .from('applications')
+      .update({ notes })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating notes:', error)
+    } else {
+      fetchApplications()
+    }
   }
 
-  const removeApplication = (id) => {
-    setApplications((current) => current.filter((app) => app.id !== id))
+  const removeApplication = async (id) => {
+    const { error } = await supabase
+      .from('applications')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error removing application:', error)
+    } else {
+      fetchApplications()
+    }
   }
 
   return (
@@ -189,7 +176,10 @@ function App() {
             />
           </div>
 
-          <button type="submit" className="primary-button">
+          <button
+            type="submit"
+            className="primary-button"
+          >
             Add application
           </button>
         </form>
@@ -275,8 +265,7 @@ function App() {
                 className="notes-textarea"
               />
             </article>
-          ))
-        )}
+          )))}
       </section>
     </main>
   )
